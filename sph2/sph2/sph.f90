@@ -10,7 +10,7 @@ program sph
     real S,m,h!площадь квадрата,масса чистицы, радиус сглаживания
     real nu,mu,cs_0,E,k !параметры материала
     real dh!для вычисление через конечные разности градиента ядра
-    real dt,time
+    real dt,lifetime
     real, allocatable :: x(:,:)!координаты частиц
     real, allocatable :: x_old(:,:)!координаты частиц в отсчетной конфигурации
     real, allocatable :: v(:,:)!скорость частиц
@@ -109,7 +109,7 @@ program sph
     E=9.0*k*mu/(3.0*k+mu);   
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0);
-    h=1.4*sqrt(m/rho_0)
+    h=sqrt(m/rho_0)
     dt=CFL*h/cs_0
     
     allocate(vol(N))
@@ -161,19 +161,26 @@ program sph
         v_n_3_2=v_n_1_2+dt*acc
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2;
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2;
-        lifetime=(step*dt)
-        write(*,1111) v(1,N),v(2,N),lifetime
+        lifetime=(real(step)*dt)
+        write(*,1111) x(1,N),x(2,N),lifetime
     enddo
     
     
     
-    
-    deallocate(nabla_W_0)
+     deallocate(vol)
     deallocate(x)
+    deallocate(x_old)
     deallocate(v)
+    
+    deallocate(acc)
+    deallocate(x_0,x_n_1,x_n_2,x_n_1_2,x_n_3_2)
+    deallocate(v_0_0,v_n_1,v_n_2,v_n_1_2,v_n_3_2)
+    deallocate(W)
+    deallocate(nabla_W)
+    deallocate(nabla_W_0)
         pause
         
-1100 format (7f10.0,1i3)
+1100 format (7f10.6,1i3)
 1110 format (1i11,1f15.0,1f9.0)
 1111 format (3f10.6)
     end program sph
@@ -312,12 +319,15 @@ program sph
               real :: x_old(2,N)
               real :: nabla_W_0(2,N,N)
               real :: F(2,2,N)
+              real ui,uj
               F=0
               do i=1,N
                   do j=1,N
                       do beta=1,2
                           do alpha=1,2
-                              F(alpha,beta,i)=F(alpha,beta,i)+vol(j)*((x(alpha,j)-x_old(alpha,j))-(x(alpha,i)-x_old(alpha,i)))*nabla_W_0(beta,i,j)
+                              ui=x(alpha,i)-x_old(alpha,i)
+                              uj=x(alpha,j)-x_old(alpha,j)
+                              F(alpha,beta,i)=F(alpha,beta,i)+vol(j)*(ui-uj)*nabla_W_0(beta,i,j)
                           enddo
                       enddo
                   enddo
@@ -345,12 +355,10 @@ program sph
               real ::dev_B_iso(3,3)
               C=0
               B=0
+              Fp=0
               do i=1,N
                   
                   do alpha=1,2
-                      Fp(alpha,3)=0
-                      Fp(3,alpha)=0
-                      
                       do beta=1,2
                           Fp(alpha,beta)=F(alpha,beta,i)
                       enddo
@@ -374,9 +382,11 @@ program sph
                   enddo
                   
                   B_iso=detFp**(-2.0/3.0)*B
-                  dev_B_iso(1,1)=B_iso(1,1)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
-                  dev_B_iso(2,2)=B_iso(2,2)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
-                  dev_B_iso(3,3)=B_iso(3,3)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
+                  dev_B_iso=B_iso
+                  
+                  dev_B_iso(1,1)=dev_B_iso(1,1)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
+                  dev_B_iso(2,2)=dev_B_iso(2,2)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
+                  dev_B_iso(3,3)=dev_B_iso(3,3)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
                   C(1:2,1:2,i)=mu*dev_B_iso(1:2,1:2)
                   
                   C(1,1,i)=C(1,1,i)+k/10.0*(detFp**5-detFp**(-5))/detFp!ВОПРОС
