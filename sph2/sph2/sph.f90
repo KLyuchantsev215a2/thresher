@@ -109,7 +109,7 @@ program sph
     E=9.0*k*mu/(3.0*k+mu);   
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0);
-    h=sqrt(m/rho_0)
+    h=1.4*sqrt(m/rho_0)
     dt=CFL*h/cs_0
     
     allocate(vol(N))
@@ -141,6 +141,9 @@ program sph
     a=compute_W_cor(x,x,h,N,vol,W)
     a=Compute_nabla_W(x,h,vol,N,W,nabla_W_0,dh)
     a=Compute_F(vol,x,x_old,nabla_W_0,N,F)
+    
+    
+    
     a=Compute_Stress(F,C,mu,k,N)
     a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,acc)
     
@@ -149,12 +152,12 @@ program sph
         x_0=x
         v_0_0=v
         a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_0,x_old,nabla_W_0,nabla_W,W,acc)
-        x_n_1=x_old+dt*v_0_0
+        x_n_1=x_0+dt*v_0_0
         v_n_1=v_0_0+dt*acc
         a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1,x_old,nabla_W_0,nabla_W,W,acc)
         x_n_2=x_n_1+dt*v_n_1
         v_n_2=v_n_1+dt*acc
-        x_n_1_2=3.0/4.0*x_old+1.0/4.0*x_n_2
+        x_n_1_2=3.0/4.0*x_0+1.0/4.0*x_n_2
         v_n_1_2=3.0/4.0*v_0_0+1.0/4.0*v_n_2
         a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_old,nabla_W_0,nabla_W,W,acc)
         x_n_3_2=x_n_1_2+dt*v_n_1_2
@@ -235,8 +238,8 @@ program sph
         retur=Compute_W_cor(x,x,h,N,vol,W)
         retur=Compute_W_cor(x,xper1,h,N,vol,Wper1)
         retur=Compute_W_cor(x,xper2,h,N,vol,Wper2)
-        nabla_W(1,1:N,1:N)=(Wper1-W)/dh
-        nabla_W(2,1:N,1:N)=(Wper2-W)/dh
+        nabla_W(1,1:N,1:N)=(Wper1(1:N,1:N)-W(1:N,1:N))/dh
+        nabla_W(2,1:N,1:N)=(Wper2(1:N,1:N)-W(1:N,1:N))/dh
         Compute_nabla_W=1
         
     end function Compute_nabla_W
@@ -325,14 +328,14 @@ program sph
                   do j=1,N
                       do beta=1,2
                           do alpha=1,2
-                              ui=x(alpha,i)-x_old(alpha,i)
                               uj=x(alpha,j)-x_old(alpha,j)
-                              F(alpha,beta,i)=F(alpha,beta,i)+vol(j)*(ui-uj)*nabla_W_0(beta,i,j)
+                              ui=x(alpha,i)-x_old(alpha,i)
+                              F(alpha,beta,i)=F(alpha,beta,i)+vol(j)*(uj-ui)*nabla_W_0(beta,i,j)
                           enddo
                       enddo
                   enddo
-                  F(1,1,i)= F(1,1,i)+1
-                  F(2,2,i)= F(2,2,i)+1
+                  F(1,1,i)= F(1,1,i)+1.0
+                  F(2,2,i)= F(2,2,i)+1.0
               enddo   
               
               Compute_F=1
@@ -375,6 +378,7 @@ program sph
                   
                   do alpha=1,3
                       do beta=1,3
+                          B(alpha,beta)=0
                           do gamma=1,3
                             B(alpha,beta)=B(alpha,beta)+Fp(alpha,gamma)*trans_Fp(gamma,beta)
                           enddo
@@ -382,12 +386,14 @@ program sph
                   enddo
                   
                   B_iso=detFp**(-2.0/3.0)*B
+                  
                   dev_B_iso=B_iso
                   
-                  dev_B_iso(1,1)=dev_B_iso(1,1)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
-                  dev_B_iso(2,2)=dev_B_iso(2,2)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
-                  dev_B_iso(3,3)=dev_B_iso(3,3)-1.0/3.0*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
-                  C(1:2,1:2,i)=mu*dev_B_iso(1:2,1:2)
+                  dev_B_iso(1,1)=dev_B_iso(1,1)-(1.0/3.0)*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
+                  dev_B_iso(2,2)=dev_B_iso(2,2)-(1.0/3.0)*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
+                  dev_B_iso(3,3)=dev_B_iso(3,3)-(1.0/3.0)*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
+                  
+                  C(1:2,1:2,i)=mu*dev_B_iso(1:2,1:2)/detFp
                   
                   C(1,1,i)=C(1,1,i)+k/10.0*(detFp**5-detFp**(-5))/detFp!бнопня
                   C(2,2,i)=C(2,2,i)+k/10.0*(detFp**5-detFp**(-5))/detFp!бнопня
@@ -428,7 +434,7 @@ program sph
                   do j=1,N
                     do beta=1,2
                         do alpha=1,2
-                            acc(alpha,i)=acc(alpha,i)-vol(j)*C(alpha,beta,j)*nabla_W(beta,j,i)
+                            acc(alpha,i)=acc(alpha,i)-(vol(j))*C(alpha,beta,j)*nabla_W(beta,j,i)
                         enddo
                     enddo
                   enddo
