@@ -356,11 +356,11 @@ program sph
               real ::B(3,3)
               real ::B_iso(3,3)
               real ::dev_B_iso(3,3)
-              C=0
-              B=0
-              Fp=0
+             C=0
               do i=1,N
-                  
+
+              B=0
+              Fp=0  
                   do alpha=1,2
                       do beta=1,2
                           Fp(alpha,beta)=F(alpha,beta,i)
