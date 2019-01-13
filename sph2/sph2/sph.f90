@@ -2,7 +2,7 @@
 !полная инициализация начальный данных, работа с геометрией области
 program sph
 !d размерность задачи нигде пока не используется
- 
+
     integer N!количество частиц
     integer step!счетчик
     integer a!временная для чтения номера
@@ -132,7 +132,7 @@ program sph
     do i=1,N
         read (1, 1110) a,x(1,i),x(2,i)
     enddo
-    
+     
     do i=1,N
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
@@ -167,7 +167,7 @@ program sph
         lifetime=(real(step)*dt)
         write(*,1111) x(1,N),x(2,N),lifetime
     enddo
-    
+
     
     
      deallocate(vol)
