@@ -16,6 +16,8 @@ program sph
     real, allocatable :: v(:,:)!скорость частиц
    
     real, allocatable :: W(:,:)
+    real, allocatable :: Wper1(:,:)
+    real, allocatable :: Wper2(:,:)
     real, allocatable :: nabla_W(:,:,:)
     real, allocatable :: nabla_W_0(:,:,:)
     
@@ -35,12 +37,14 @@ program sph
        real :: compute_W
       end function compute_W
       
-      function Compute_nabla_W (x,h,vol,N,W,nabla_W,dh)
+      function Compute_nabla_W (x,h,vol,N,W,Wper1,Wper2,nabla_W,dh)
        integer :: N
        real :: x(2,N)
        real :: h
        real :: vol(N)
        real :: W(N,N)
+       real ::Wper1(N,N)
+       real ::Wper2(N,N)
        real :: nabla_W(2,N,N)
        real :: dh
        real :: Compute_nabla_W 
@@ -75,7 +79,7 @@ program sph
               real :: Compute_stress
     end function Compute_stress
     
-    function Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,acc)
+    function Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
               integer :: N
               real :: h
               real :: dh
@@ -90,6 +94,8 @@ program sph
               real :: nabla_W_0(2,N,N)
               real :: nabla_W(2,N,N)
               real :: W(N,N)
+               real ::Wper1(N,N)
+             real ::Wper2(N,N)
               real :: acc(2,N)
               real :: Compute_Acceleration
             end function Compute_Acceleration
@@ -97,7 +103,7 @@ program sph
    
     open (unit=1, file="input.txt", status='old',    &
              access='sequential', form='formatted', action='read' )
-    open (unit=2, file="output.txt")
+    open (unit=2, file="output.txt", action='write')
      
     read (1, 1100) rho_0, T,nu, mu, l, dh,CFL,N 
     write (*, 1100)rho_0, T,nu, mu, l, dh,CFL,N
@@ -121,6 +127,10 @@ program sph
     allocate(x_0(2,N),x_n_1(2,N),x_n_2(2,N),x_n_1_2(2,N),x_n_3_2(2,N))
     allocate(v_0_0(2,N),v_n_1(2,N),v_n_2(2,N),v_n_1_2(2,N),v_n_3_2(2,N))
     allocate(W(N,N))
+    
+    allocate(Wper1(N,N))
+    allocate(Wper2(N,N))
+    
     allocate(nabla_W(2,N,N))
     allocate(nabla_W_0(2,N,N))
     
@@ -139,38 +149,38 @@ program sph
     
     x_old=x
     a=compute_W_cor(x,x,h,N,vol,W)
-    a=Compute_nabla_W(x,h,vol,N,W,nabla_W_0,dh)
+    a=Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W_0,dh)
     a=Compute_F(vol,x,x_old,nabla_W_0,N,F)
     
     
     
     a=Compute_Stress(F,C,mu,k,N)
-    a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,acc)
+    a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
     
     step=int(T/dt)
     do step=1,int(T/dt)
         x_0=x
         v_0_0=v
-        a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_0,x_old,nabla_W_0,nabla_W,W,acc)
+        a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_0,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
         x_n_1=x_0+dt*v_0_0
         v_n_1=v_0_0+dt*acc
-        a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1,x_old,nabla_W_0,nabla_W,W,acc)
+        a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
         x_n_2=x_n_1+dt*v_n_1
         v_n_2=v_n_1+dt*acc
         x_n_1_2=3.0/4.0*x_0+1.0/4.0*x_n_2
         v_n_1_2=3.0/4.0*v_0_0+1.0/4.0*v_n_2
-        a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_old,nabla_W_0,nabla_W,W,acc)
+        a=Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
         x_n_3_2=x_n_1_2+dt*v_n_1_2
         v_n_3_2=v_n_1_2+dt*acc
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2;
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2;
         lifetime=(real(step)*dt)
-        write(*,1111) x(1,N),x(2,N),lifetime
+        write (*,1111) x(1,N)-x_old(1,N),x(2,N)-x_old(2,n),lifetime
     enddo
 
     
     
-     deallocate(vol)
+    deallocate(vol)
     deallocate(x)
     deallocate(x_old)
     deallocate(v)
@@ -217,7 +227,7 @@ program sph
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function Compute_nabla_W(x,h,vol,N,W,nabla_W,dh)
+    function Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W,dh)
         integer N
         real::x(2,N)
         real::xper1(2,N)
@@ -406,7 +416,7 @@ program sph
     
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-        function Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,acc)
+        function Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
               integer :: N
               real :: h
               real :: dh
@@ -421,10 +431,12 @@ program sph
               real :: nabla_W_0(2,N,N)
               real :: nabla_W(2,N,N)
               real :: W(N,N)
+               real ::Wper1(N,N)
+             real ::Wper2(N,N)
               real :: acc(2,N)
               
               a=compute_W_cor(x,x,h,N,vol,W)
-              a=Compute_nabla_W(x,h,vol,N,W,nabla_W,dh)
+              a=Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W,dh)
               a=Compute_F(vol,x,x_old,nabla_W_0,N,F)
               a=Compute_Stress(F,C,mu,k,N)
               

@@ -26,7 +26,8 @@
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd;h;inc"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-		<File RelativePath=".\input.txt"/></Filter>
+		<File RelativePath=".\input.txt"/>
+		<File RelativePath=".\output.txt"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath=".\sph.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>
