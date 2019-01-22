@@ -33,8 +33,8 @@
        real :: xi(2)
        real :: xj(2)
        real :: h 
-       real :: compute_W
-      end function compute_W
+       real :: Compute_W
+      end function Compute_W
       
       end interface
     
@@ -93,6 +93,7 @@
     call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
     
     step=int(T/dt)
+    
     do step=1,int(T/dt)
         x_0=x
         v_0_0=v
@@ -110,10 +111,9 @@
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2;
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2;
         lifetime=(real(step)*dt)
-        write (*,1111) x(1,N)-x_old(1,N),x(2,N)-x_old(2,n),lifetime
+        write (2,1111) x(1,N)-x_old(1,N),x(2,N)-x_old(2,n),lifetime
     enddo
 
-    
     deallocate(vol)
     deallocate(x)
     deallocate(x_old)
@@ -132,7 +132,7 @@
     
     end program base
     
-    function compute_W(xi,xj,h)
+    function Compute_W(xi,xj,h)
         real::xi(2)
         real::xj(2)
         real h
@@ -155,5 +155,5 @@
         end if
         
     
-    compute_W=KER
-    end function compute_W
+    Compute_W=KER
+    end function Compute_W
