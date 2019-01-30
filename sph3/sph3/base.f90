@@ -28,6 +28,8 @@
     real, allocatable :: x_0(:,:),x_n_1(:,:),x_n_2(:,:),x_n_1_2(:,:),x_n_3_2(:,:)
     real, allocatable :: v_0_0(:,:),v_n_1(:,:),v_n_2(:,:),v_n_1_2(:,:),v_n_3_2(:,:)
     
+    real :: test_M(3,3)
+    
      interface
         function Compute_W (xi,xj,h)
             real :: xi(2)
@@ -227,6 +229,8 @@
     function dev (M)
             real :: M(3,3)
             real :: dev(3,3)
+            
+            dev=M
             
             do alpha=1,3
                 dev(alpha,alpha)=dev(alpha,alpha)-(1.0/3.0)*trace(M)
