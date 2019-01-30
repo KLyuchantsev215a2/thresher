@@ -69,12 +69,12 @@
     S=l*l
     m=rho_0*S/N
     
-    k=2.0*mu*(1.0+nu)/(3.0*(1.0-2.0*nu));
-    E=9.0*k*mu/(3.0*k+mu);   
+    k=2.0*mu*(1.0+nu)/(3.0*(1.0-2.0*nu))
+    E=9.0*k*mu/(3.0*k+mu)
 
-    cs_0=sqrt((E+4.0/3.0*mu)/rho_0);
-    h=2*sqrt(m/rho_0)
-    dt=CFL*h/cs_0
+    cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
+    h=sqrt(m/rho_0)
+    dt=CFL*h/(cs_0)
     
     allocate(vol(N))
     allocate(x(2,N))
@@ -145,13 +145,13 @@
         
          i=30
         do while(i<=N)
-            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/Time)*(step*dt/Time)
+            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
             i=i+30
         end do
         
         time_calculated=(real(step)*dt)
         write (2,1111) x(1,886)-x_init(1,886),x(2,886)-x_init(2,886),time_calculated
-        write (3,1112) C(1,2,466),C(2,1,466),C(1,1,466),C(2,2,466),time_calculated
+        write (3,1112) C(1,2,886),C(1,1,886),C(2,2,886),time_calculated
     enddo
 
     deallocate(vol)
@@ -169,7 +169,7 @@
     1100 format (7f10.6,1i3)
     1110 format (1i11,1f15.0,1f9.0)
     1111 format (3f10.6)
-    1112 format (5f10.6)
+    1112 format (4f10.6)
     
     end program base
     
