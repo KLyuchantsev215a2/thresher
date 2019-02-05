@@ -1,21 +1,21 @@
 subroutine Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
     integer :: N
-    real :: h
-    real :: dh
-    real :: rho_0
-    real :: mu
-    real :: k
-    real :: vol(N)
-    real :: F(2,2,N)
-    real :: C(2,2,N)
-    real :: x(2,N)
-    real :: x_old(2,N)
-    real :: nabla_W_0(2,N,N)
-    real :: nabla_W(2,N,N)
-    real :: W(N,N)
-    real ::Wper1(N,N)
-    real ::Wper2(N,N)
-    real :: acc(2,N)
+    real*8 :: h
+    real*8 :: dh
+    real*8 :: rho_0
+    real*8 :: mu
+    real*8 :: k
+    real*8 :: vol(N)
+    real*8 :: F(2,2,N)
+    real*8 :: C(2,2,N)
+    real*8 :: x(2,N)
+    real*8 :: x_old(2,N)
+    real*8 :: nabla_W_0(2,N,N)
+    real*8 :: nabla_W(2,N,N)
+    real*8 :: W(N,N)
+    real*8 ::Wper1(N,N)
+    real*8 ::Wper2(N,N)
+    real*8 :: acc(2,N)
 
     call compute_W_cor(x,x,h,N,vol,W)
     call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W,dh)

@@ -1,17 +1,17 @@
 ﻿subroutine Compute_Stress(F,C,mu,k,N)
     
     integer:: N
-    real :: F(2,2,N)
-    real :: C(2,2,N)
-    real :: mu
-    real :: k
+    real*8 :: F(2,2,N)
+    real*8 :: C(2,2,N)
+    real*8 :: mu
+    real*8 :: k
 
-    real::detFp
-    real ::Fp(3,3)
-    real :: trans_Fp(3,3)
-    real ::B(3,3)
-    real ::B_iso(3,3)
-    real ::dev_B_iso(3,3)
+    real*8::detFp
+    real*8 ::Fp(3,3)
+    real*8 :: trans_Fp(3,3)
+    real*8 ::B(3,3)
+    real*8 ::B_iso(3,3)
+    real*8 ::dev_B_iso(3,3)
     
     C=0
     do i=1,N

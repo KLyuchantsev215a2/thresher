@@ -1,66 +1,67 @@
 ﻿program base
 !spatial integration method  SPH
-
+    !use ogpf
+    
     integer N,i!the number of particles that sample the environment
     integer step!counter for time steps
     
-    real rho_0, T, l,CFL!density, total calculation time ,the size of the side of the square, Courant number
-    real S,m,h!body area, mass of a single particle , smoothing radius
-    real nu,mu,cs_0,E,k !material constants
-    real dh!indent for calculating the derived kernel through finite differences
-    real dt,time_calculated!time step, time during calculation
+    real*8 :: rho_0, T, l,CFL!density, total calculation time ,the size of the side of the square, Courant number
+    real*8 :: S,m,h!body area, mass of a single particle , smoothing radius
+    real*8 :: nu,mu,cs_0,E,k !material constants
+    real*8 :: dh!indent for calculating the derived kernel through finite differences
+    real*8 :: dt,time_calculated!time step, time during calculation
     
-    real, allocatable :: x(:,:)
-    real, allocatable :: x_init(:,:)
-    real, allocatable :: v(:,:)
+    real*8, allocatable :: x(:,:)
+    real*8, allocatable :: x_init(:,:)
+    real*8, allocatable :: v(:,:)
    
-    real, allocatable :: W(:,:)
-    real, allocatable :: Wper1(:,:)
-    real, allocatable :: Wper2(:,:)
-    real, allocatable :: nabla_W(:,:,:)
-    real, allocatable :: nabla_W_0(:,:,:)
+    real*8, allocatable :: W(:,:)
+    real*8, allocatable :: Wper1(:,:)
+    real*8, allocatable :: Wper2(:,:)
+    real*8, allocatable :: nabla_W(:,:,:)
+    real*8, allocatable :: nabla_W_0(:,:,:)
     
-    real, allocatable :: C(:,:,:)
-    real, allocatable :: F(:,:,:)
-    real, allocatable :: vol(:)
+    real*8, allocatable :: C(:,:,:)
+    real*8, allocatable :: F(:,:,:)
+    real*8, allocatable :: vol(:)
     
-    real, allocatable :: acc(:,:)
-    real, allocatable :: x_0(:,:),x_n_1(:,:),x_n_2(:,:),x_n_1_2(:,:),x_n_3_2(:,:)
-    real, allocatable :: v_0_0(:,:),v_n_1(:,:),v_n_2(:,:),v_n_1_2(:,:),v_n_3_2(:,:)
+    real*8, allocatable :: acc(:,:)
+    real*8, allocatable :: x_0(:,:),x_n_1(:,:),x_n_2(:,:),x_n_1_2(:,:),x_n_3_2(:,:)
+    real*8, allocatable :: v_0_0(:,:),v_n_1(:,:),v_n_2(:,:),v_n_1_2(:,:),v_n_3_2(:,:)
     
-    real :: test_M(3,3)
+    real*8 :: test_M(3,3)
     
      interface
         function Compute_W (xi,xj,h)
-            real :: xi(2)
-            real :: xj(2)
-            real :: h 
-            real :: Compute_W
+            real*8 :: xi(2)
+            real*8 :: xj(2)
+            real*8 :: h 
+            real*8 :: Compute_W
         end function Compute_W
       
         function det (M)
-            real :: M(3,3)
-            real :: det
+            real*8 :: M(3,3)
+            real*8 :: det
         end function det
                
         function trace (M)
-            real :: M(3,3)
-            real :: trace
+            real*8 :: M(3,3)
+            real*8 :: trace
         end function trace
         
         function trans (M)
-            real :: M(3,3)
-            real :: trans(3,3)
+            real*8 :: M(3,3)
+            real*8 :: trans(3,3)
         end function trans
         
         function dev (M)
-            real :: M(3,3)
-            real :: dev(3,3)
+            real*8 :: M(3,3)
+            real*8 :: dev(3,3)
         end function dev
       
      end interface
     
-    open (unit=1, file="input.txt", status='old',    &
+    open (unit=1, file="input21.txt", status='old',    &
              access='sequential', form='formatted', action='read' )
     open (unit=2, file="output_x.txt", action='write')
     open (unit=3, file="output_C.txt", action='write')
@@ -75,7 +76,7 @@
     E=9.0*k*mu/(3.0*k+mu)
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
-    h=sqrt(m/rho_0)
+    h=1.4*sqrt(m/rho_0)
     dt=CFL*h/(cs_0)
     
     allocate(vol(N))
@@ -106,11 +107,11 @@
     do i=1,N
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
-    
-    do i=1,N!new condition
-        v(1,i)=0
-        v(2,i)=0
-    enddo
+   
+  !  do i=1,N!new condition
+  !      v(1,i)=0
+  !      v(2,i)=0
+  !  enddo
     
     x_init=x
     
@@ -139,21 +140,23 @@
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2;
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2;
         
-        i=1
-         do while(i<=30*30-30+1)  
-            x(1,i)=x_init(1,i)
-            i=i+30
-         end do
+     !   i=1
+     !    do while(i<=30*30-30+1)  
+      !      x(1,i)=x_init(1,i)
+       !     i=i+30
+      !   end do
         
-         i=30
-        do while(i<=N)
-            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
-            i=i+30
-        end do
+     !    i=30
+     !   do while(i<=N)
+     !       x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
+    !        i=i+30
+    !    end do
         
         time_calculated=(real(step)*dt)
-        write (2,1111) x(1,886)-x_init(1,886),x(2,886)-x_init(2,886),time_calculated
-        write (3,1112) C(1,2,886),C(1,1,886),C(2,2,886),time_calculated
+        write (2,1111) x(1,441)-x_init(1,441),x(2,441)-x_init(2,441),time_calculated
+        write (3,1112) C(1,2,221),C(1,1,221),C(2,2,221),time_calculated
+        
+        
     enddo
 
     deallocate(vol)
@@ -168,7 +171,7 @@
     deallocate(nabla_W)
     deallocate(nabla_W_0)
     
-    1100 format (7f10.6,1i3)
+    1100 format (7f10.6,1i4)
     1110 format (1i11,1f15.0,1f9.0)
     1111 format (3f10.6)
     1112 format (4f10.6)
@@ -176,14 +179,14 @@
     end program base
     
     function Compute_W(xi,xj,h)
-        real::xi(2)
-        real::xj(2)
-        real h
+        real*8::xi(2)
+        real*8::xj(2)
+        real*8::h
         
-        real::r(2)
-        real q
-        real C
-        real KER
+        real*8::r(2)
+        real*8::q
+        real*8::C
+        real*8::KER
         KER=0
         r=xi-xj
         q=sqrt(r(1)*r(1)+r(2)*r(2))/h
@@ -202,21 +205,21 @@
     end function Compute_W
     
     function det (M)
-         real :: M(3,3)
+         real*8 :: M(3,3)
         
          det=M(1,1)*M(2,2)-M(1,2)*M(2,1)
          
     end function det
         
     function trace (M)
-            real :: M(3,3)
+            real*8 :: M(3,3)
             trace=M(1,1)+M(2,2)+M(3,3)
     end function trace
     
     function trans (M)
     
-        real :: M(3,3)
-        real :: trans(3,3)
+        real*8 :: M(3,3)
+        real*8 :: trans(3,3)
         
         do alpha=1,3
             do beta=1,3
@@ -227,8 +230,8 @@
     end function trans
     
     function dev (M)
-            real :: M(3,3)
-            real :: dev(3,3)
+            real*8:: M(3,3)
+            real*8:: dev(3,3)
             
             dev=M
             

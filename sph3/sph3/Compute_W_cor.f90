@@ -1,19 +1,19 @@
 subroutine Compute_W_cor(x,xper,h,N,vol,W)
      integer :: N
-       real :: x(2,N)
-       real :: xper(2,N)
-       real :: h
-       real :: vol(N)
-       real :: W(N,N)
+       real*8 :: x(2,N)
+       real*8 :: xper(2,N)
+       real*8 :: h
+       real*8 :: vol(N)
+       real*8 :: W(N,N)
         
-        real ::xi(2)
-        real ::xj(2)
-        real ::r(2)
-        real ::sumW(2)
-        real ::betaij(2)
-        real ::cormat(2,2)
-        real ::cormat_tmp(2,2)
-        real alpha,detcormat_tmp
+        real*8 ::xi(2)
+        real*8 ::xj(2)
+        real*8 ::r(2)
+        real*8 ::sumW(2)
+        real*8 ::betaij(2)
+        real*8 ::cormat(2,2)
+        real*8 ::cormat_tmp(2,2)
+        real*8 ::alpha,detcormat_tmp
         
         do i=1,N
             sumW=0

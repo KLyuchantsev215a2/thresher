@@ -2,13 +2,13 @@ subroutine Compute_F(vol,x,x_old,nabla_W_0,N,F)
     
     integer :: N
     
-    real :: vol(N)
-    real :: x(2,N)
-    real :: x_old(2,N)
+    real*8 :: vol(N)
+    real*8 :: x(2,N)
+    real*8 :: x_old(2,N)
     
-    real :: nabla_W_0(2,N,N)
-    real :: F(2,2,N)
-    real ui,uj
+    real*8 :: nabla_W_0(2,N,N)
+    real*8 :: F(2,2,N)
+    real*8 ui,uj
     
     F=0
         do i=1,N

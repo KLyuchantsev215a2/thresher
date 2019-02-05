@@ -1,10 +1,10 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Wed Jan 30 20:48:41 2019
+        !COMPILER-GENERATED INTERFACE MODULE: Tue Feb 05 14:31:13 2019
         MODULE COMPUTE_W__genmod
           INTERFACE 
             FUNCTION COMPUTE_W(XI,XJ,H)
-              REAL(KIND=4) :: XI(2)
-              REAL(KIND=4) :: XJ(2)
-              REAL(KIND=4) :: H
+              REAL(KIND=8) :: XI(2)
+              REAL(KIND=8) :: XJ(2)
+              REAL(KIND=8) :: H
               REAL(KIND=4) :: COMPUTE_W
             END FUNCTION COMPUTE_W
           END INTERFACE 
