@@ -76,7 +76,7 @@
     E=9.0*k*mu/(3.0*k+mu)
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
-    h=1.4*sqrt(m/rho_0)
+    h=4*sqrt(m/rho_0)
     dt=CFL*h/(cs_0)
     
     allocate(vol(N))
@@ -108,10 +108,10 @@
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
    
-  !  do i=1,N!new condition
-  !      v(1,i)=0
-  !      v(2,i)=0
-  !  enddo
+    do i=1,N!new condition
+        v(1,i)=0
+        v(2,i)=0
+    enddo
     
     x_init=x
     
@@ -137,24 +137,24 @@
         call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
         x_n_3_2=x_n_1_2+dt*v_n_1_2
         v_n_3_2=v_n_1_2+dt*acc
-        x=1.0/3.0*x_0+2.0/3.0*x_n_3_2;
-        v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2;
+        x=1.0/3.0*x_0+2.0/3.0*x_n_3_2
+        v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2
         
-     !   i=1
-     !    do while(i<=30*30-30+1)  
-      !      x(1,i)=x_init(1,i)
-       !     i=i+30
-      !   end do
+        i=1
+         do while(i<=21*21-21+1)  
+            x(1,i)=x_init(1,i)
+            i=i+21
+         end do
         
-     !    i=30
-     !   do while(i<=N)
-     !       x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
-    !        i=i+30
-    !    end do
+         i=21
+        do while(i<=N)
+            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
+            i=i+21
+        end do
         
         time_calculated=(real(step)*dt)
-        write (2,1111) x(1,441)-x_init(1,441),x(2,441)-x_init(2,441),time_calculated
-        write (3,1112) C(1,2,221),C(1,1,221),C(2,2,221),time_calculated
+        write (2,1111) x(1,431)-x_init(1,431),x(2,431)-x_init(2,431),time_calculated
+        write (3,1112) C(1,2,431),C(1,1,431),C(2,2,431),time_calculated
         
         
     enddo
