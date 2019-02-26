@@ -1,6 +1,7 @@
 ﻿program base
 !spatial integration method  SPH
-    !use ogpf
+   ! use ogpf
+
     
     integer N,i!the number of particles that sample the environment
     integer step!counter for time steps
@@ -12,6 +13,7 @@
     real*8 :: dt,time_calculated!time step, time during calculation
     
     real*8, allocatable :: x(:,:)
+    real*8, allocatable :: xplot(:,:,:)
     real*8, allocatable :: x_init(:,:)
     real*8, allocatable :: v(:,:)
    
@@ -76,11 +78,12 @@
     E=9.0*k*mu/(3.0*k+mu)
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
-    h=4*sqrt(m/rho_0)
-    dt=CFL*h/(cs_0)
+    h=1.4*sqrt(m/rho_0)
+    dt=0.1*h/(cs_0)
     
     allocate(vol(N))
     allocate(x(2,N))
+    allocate(xplot(2,N,int(T/dt)))
     allocate(x_init(2,N))
     allocate(v(2,N))
     
@@ -108,20 +111,21 @@
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
    
-    do i=1,N!new condition
-        v(1,i)=0
-        v(2,i)=0
-    enddo
+   ! do i=1,N!new condition
+   !     v(1,i)=0
+   !     v(2,i)=0
+    !enddo
     
     x_init=x
     
+ 
     call Compute_W_cor(x,x,h,N,vol,W)
     call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W_0,dh)
     call Compute_F(vol,x,x_init,nabla_W_0,N,F)
     call Compute_Stress(F,C,mu,k,N)
     call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
     
-    
+     
     
     do step=1,int(T/dt)
         x_0=x
@@ -140,25 +144,29 @@
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2
         
-        i=1
-         do while(i<=21*21-21+1)  
-            x(1,i)=x_init(1,i)
-            i=i+21
-         end do
+       ! i=1
+       !  do while(i<=21*21-21+1)  
+       !     x(1,i)=x_init(1,i)
+        !    i=i+21
+       !  end do
         
-         i=21
-        do while(i<=N)
-            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
-            i=i+21
-        end do
+       !  i=21
+      !  do while(i<=N)
+       !     x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
+       !     i=i+21
+       ! end do
         
         time_calculated=(real(step)*dt)
-        write (2,1111) x(1,431)-x_init(1,431),x(2,431)-x_init(2,431),time_calculated
-        write (3,1112) C(1,2,431),C(1,1,431),C(2,2,431),time_calculated
         
+        xplot(1:2,1:N,step)=x
         
+       ! write (2,1111) x(1,121)-x_init(1,121),x(2,121)-x_init(2,121),time_calculated
+        !write (3,1112) C(1,2,61),C(1,1,61),C(2,2,61),time_calculated
+       ! call  plot(x,N)
     enddo
-
+        call  plot(xplot,N,int(T/dt))
+    
+    
     deallocate(vol)
     deallocate(x)
     deallocate(x_init)
@@ -172,11 +180,12 @@
     deallocate(nabla_W_0)
     
     1100 format (7f10.6,1i4)
-    1110 format (1i11,1f15.0,1f9.0)
+    1110 format (1i12,1f25.0,1f18.0)
     1111 format (3f10.6)
     1112 format (4f10.6)
     
     end program base
+    
     
     function Compute_W(xi,xj,h)
         real*8::xi(2)
@@ -240,3 +249,4 @@
             enddo
    
     end function dev
+    
