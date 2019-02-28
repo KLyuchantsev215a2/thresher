@@ -15,16 +15,17 @@
         
         call gp%animation_start(1)
         
-        do i=1, frame
+        do i=1, frame, 10
             xg=x(1,1:N,i)
             yg=x(2,1:N,i)
             ! Annotation: set title, xlabel, ylabel
-            CALL gp%title('Example 1. A simple xy plot')
-            CALL gp%xlabel('my x axis ...')
-            CALL gp%ylabel('my y axis ...')
+            CALL gp%title('Example 1')
+            CALL gp%xlabel('x [mm]')
+            CALL gp%ylabel('y [mm]')
             Call gp%options('set style data linespoints')
             !Call Plot to draw a vector against a vector of data
-            CALL gp%plot(xg, yg,'title "displacement" with points lt 6 lc rgb "#FF1100"')
+            call gp%options('set xrange[-0.2:2.4];set yrange [-0.2:2.4];')
+            CALL gp%plot(xg, yg,'title "square coordinates" with points lt 6 lc rgb "#FF1100"')
         enddo
         
         call gp%animation_show()

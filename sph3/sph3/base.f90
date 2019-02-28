@@ -5,7 +5,7 @@
     
     integer N,i!the number of particles that sample the environment
     integer step!counter for time steps
-    
+    integer sqn
     real*8 :: rho_0, T, l,CFL!density, total calculation time ,the size of the side of the square, Courant number
     real*8 :: S,m,h!body area, mass of a single particle , smoothing radius
     real*8 :: nu,mu,cs_0,E,k !material constants
@@ -69,8 +69,9 @@
     open (unit=3, file="output_C.txt", action='write')
     
     read (1, 1100) rho_0, T,nu, mu, l, dh,CFL,N 
-    write (*, 1100)rho_0, T,nu, mu, l, dh,CFL,N
+    write (*, 1100) rho_0, T,nu, mu, l, dh,CFL,N
     
+    sqn=21
     S=l*l
     m=rho_0*S/N
     
@@ -79,7 +80,7 @@
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
     h=1.4*sqrt(m/rho_0)
-    dt=0.1*h/(cs_0)
+    dt=CFL*h/(cs_0)
     
     allocate(vol(N))
     allocate(x(2,N))
@@ -111,19 +112,19 @@
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
    
-   ! do i=1,N!new condition
+  !  do i=1,N!new condition
    !     v(1,i)=0
    !     v(2,i)=0
-    !enddo
+   ! enddo
     
     x_init=x
     
  
-    call Compute_W_cor(x,x,h,N,vol,W)
+   ! call Compute_W_cor(x,x,h,N,vol,W)
     call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W_0,dh)
-    call Compute_F(vol,x,x_init,nabla_W_0,N,F)
-    call Compute_Stress(F,C,mu,k,N)
-    call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
+   ! call Compute_F(vol,x,x_init,nabla_W_0,N,F)
+    !call Compute_Stress(F,C,mu,k,N)
+   ! call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
     
      
     
@@ -144,27 +145,29 @@
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2
         
-       ! i=1
-       !  do while(i<=21*21-21+1)  
-       !     x(1,i)=x_init(1,i)
-        !    i=i+21
-       !  end do
+      !  i=1
+      !   do while(i<=sqn*sqn-sqn+1)  !new condition
+      !      x(1,i)=x_init(1,i)
+      !      i=i+sqn
+      !   end do
         
-       !  i=21
-      !  do while(i<=N)
-       !     x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
-       !     i=i+21
+       !  i=sqn
+      !  do while(i<=N)         !new condition
+      !      x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
+      !      i=i+sqn
        ! end do
         
         time_calculated=(real(step)*dt)
         
         xplot(1:2,1:N,step)=x
         
-       ! write (2,1111) x(1,121)-x_init(1,121),x(2,121)-x_init(2,121),time_calculated
+        !write (2,1111) x(1,121)-x_init(1,121),x(2,121)-x_init(2,121),time_calculated
         !write (3,1112) C(1,2,61),C(1,1,61),C(2,2,61),time_calculated
        ! call  plot(x,N)
     enddo
-        call  plot(xplot,N,int(T/dt))
+    
+    pause
+    call  plot(xplot,N,int(T/dt))
     
     
     deallocate(vol)

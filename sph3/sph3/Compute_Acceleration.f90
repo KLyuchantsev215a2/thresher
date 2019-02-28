@@ -17,7 +17,7 @@ subroutine Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabl
     real*8 ::Wper2(N,N)
     real*8 :: acc(2,N)
 
-    call compute_W_cor(x,x,h,N,vol,W)
+   ! call compute_W_cor(x,x,h,N,vol,W)
     call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W,dh)
     call Compute_F(vol,x,x_old,nabla_W_0,N,F)
     call Compute_Stress(F,C,mu,k,N)
