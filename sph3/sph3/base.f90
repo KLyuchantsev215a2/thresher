@@ -63,15 +63,15 @@
       
      end interface
     
-    open (unit=1, file="input21.txt", status='old',    &
+    open (unit=1, file="input41.txt", status='old',    &
              access='sequential', form='formatted', action='read' )
     open (unit=2, file="output_x.txt", action='write')
     open (unit=3, file="output_C.txt", action='write')
     
     read (1, 1100) rho_0, T,nu, mu, l, dh,CFL,N 
-    write (*, 1100) rho_0, T,nu, mu, l, dh,CFL,N
+    write (*, 1113) rho_0, T,nu, mu, l, dh,CFL,N
     
-    sqn=21
+    sqn=41
     S=l*l
     m=rho_0*S/N
     
@@ -79,7 +79,7 @@
     E=9.0*k*mu/(3.0*k+mu)
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
-    h=1.4*sqrt(m/rho_0)
+    h=1*sqrt(m/rho_0)
     dt=CFL*h/(cs_0)
     
     allocate(vol(N))
@@ -112,10 +112,10 @@
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
    
-  !  do i=1,N!new condition
-   !     v(1,i)=0
-   !     v(2,i)=0
-   ! enddo
+    do i=1,N!new condition
+        v(1,i)=0
+        v(2,i)=0
+    enddo
     
     x_init=x
     
@@ -145,17 +145,17 @@
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2
         
-      !  i=1
-      !   do while(i<=sqn*sqn-sqn+1)  !new condition
-      !      x(1,i)=x_init(1,i)
-      !      i=i+sqn
-      !   end do
+        i=1
+         do while(i<=sqn*sqn-sqn+1)  !new condition
+            x(1,i)=x_init(1,i)
+            i=i+sqn
+         end do
         
-       !  i=sqn
-      !  do while(i<=N)         !new condition
-      !      x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
-      !      i=i+sqn
-       ! end do
+         i=sqn
+        do while(i<=N)         !new condition
+            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
+            i=i+sqn
+        end do
         
         time_calculated=(real(step)*dt)
         
@@ -183,6 +183,7 @@
     deallocate(nabla_W_0)
     
     1100 format (7f10.6,1i4)
+    1113 format ("Density "1f10.6,/,"Time "1f10.6,/,"Poisson's ratio " 1f10.6,/,"Shear modulus " 1f10.6,/,"Side of a square " 1f10.6,/,"For finite difference " 1f10.6,/,"CFL " 1f10.6,/,"Particle count " 1i4)
     1110 format (1i12,1f25.0,1f18.0)
     1111 format (3f10.6)
     1112 format (4f10.6)
