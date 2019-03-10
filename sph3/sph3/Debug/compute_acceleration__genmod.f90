@@ -1,8 +1,8 @@
-        !COMPILER-GENERATED INTERFACE MODULE: Tue Feb 05 14:30:45 2019
+        !COMPILER-GENERATED INTERFACE MODULE: Sun Mar 10 16:21:12 2019
         MODULE COMPUTE_ACCELERATION__genmod
           INTERFACE 
             SUBROUTINE COMPUTE_ACCELERATION(N,H,DH,RHO_0,MU,K,VOL,F,C,X,&
-     &X_OLD,NABLA_W_0,NABLA_W,W,WPER1,WPER2,ACC)
+     &X_OLD,NABLA_W_0,NABLA_W,W,WPER1,WPER2,WPER3,WPER4,ACC)
               INTEGER(KIND=4) :: N
               REAL(KIND=8) :: H
               REAL(KIND=8) :: DH
@@ -19,6 +19,8 @@
               REAL(KIND=8) :: W(N,N)
               REAL(KIND=8) :: WPER1(N,N)
               REAL(KIND=8) :: WPER2(N,N)
+              REAL(KIND=8) :: WPER3(N,N)
+              REAL(KIND=8) :: WPER4(N,N)
               REAL(KIND=8) :: ACC(2,N)
             END SUBROUTINE COMPUTE_ACCELERATION
           END INTERFACE 

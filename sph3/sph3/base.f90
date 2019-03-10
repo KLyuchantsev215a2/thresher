@@ -20,6 +20,8 @@
     real*8, allocatable :: W(:,:)
     real*8, allocatable :: Wper1(:,:)
     real*8, allocatable :: Wper2(:,:)
+    real*8, allocatable :: Wper3(:,:)!tmp
+    real*8, allocatable :: Wper4(:,:)!tmp
     real*8, allocatable :: nabla_W(:,:,:)
     real*8, allocatable :: nabla_W_0(:,:,:)
     
@@ -63,15 +65,17 @@
       
      end interface
     
-    open (unit=1, file="input41.txt", status='old',    &
+    open (unit=1, file="input21.txt", status='old',    &
              access='sequential', form='formatted', action='read' )
     open (unit=2, file="output_x.txt", action='write')
     open (unit=3, file="output_C.txt", action='write')
     
+       
+    
     read (1, 1100) rho_0, T,nu, mu, l, dh,CFL,N 
     write (*, 1113) rho_0, T,nu, mu, l, dh,CFL,N
     
-    sqn=41
+    sqn=21
     S=l*l
     m=rho_0*S/N
     
@@ -79,7 +83,7 @@
     E=9.0*k*mu/(3.0*k+mu)
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
-    h=1*sqrt(m/rho_0)
+    h=1.4*sqrt(m/rho_0)
     dt=CFL*h/(cs_0)
     
     allocate(vol(N))
@@ -95,6 +99,8 @@
     
     allocate(Wper1(N,N))
     allocate(Wper2(N,N))
+    allocate(Wper3(N,N))!tmp
+    allocate(Wper4(N,N))!tmp
     
     allocate(nabla_W(2,N,N))
     allocate(nabla_W_0(2,N,N))
@@ -112,16 +118,16 @@
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
    
-    do i=1,N!new condition
-        v(1,i)=0
-        v(2,i)=0
-    enddo
+    !do i=1,N!new condition
+    !    v(1,i)=0
+   !     v(2,i)=0
+   ! enddo
     
     x_init=x
     
  
    ! call Compute_W_cor(x,x,h,N,vol,W)
-    call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,nabla_W_0,dh)
+    call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,Wper3,Wper4,nabla_W_0,dh)!tmp
    ! call Compute_F(vol,x,x_init,nabla_W_0,N,F)
     !call Compute_Stress(F,C,mu,k,N)
    ! call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
@@ -131,38 +137,38 @@
     do step=1,int(T/dt)
         x_0=x
         v_0_0=v
-        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_0,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
+        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_0,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
         x_n_1=x_0+dt*v_0_0
         v_n_1=v_0_0+dt*acc
-        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
+        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
         x_n_2=x_n_1+dt*v_n_1
         v_n_2=v_n_1+dt*acc
         x_n_1_2=3.0/4.0*x_0+1.0/4.0*x_n_2
         v_n_1_2=3.0/4.0*v_0_0+1.0/4.0*v_n_2
-        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,acc)
+        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
         x_n_3_2=x_n_1_2+dt*v_n_1_2
         v_n_3_2=v_n_1_2+dt*acc
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2
         
-        i=1
-         do while(i<=sqn*sqn-sqn+1)  !new condition
-            x(1,i)=x_init(1,i)
-            i=i+sqn
-         end do
+      !  i=1
+      !   do while(i<=sqn*sqn-sqn+1)  !new condition
+      !      x(1,i)=x_init(1,i)
+     !       i=i+sqn
+      !   end do
         
-         i=sqn
-        do while(i<=N)         !new condition
-            x(1,i)=x_init(1,i)+x_init(1,i)*(step*dt/T)*(step*dt/T)*0.5
-            i=i+sqn
-        end do
+      !   i=sqn
+       ! do while(i<=N)         !new condition
+        !    x(1,i)=x_init(1,i)+x_init(1,i)*(real(step)*dt)*(real(step)*dt)
+       !     i=i+sqn
+       ! end do
         
         time_calculated=(real(step)*dt)
         
         xplot(1:2,1:N,step)=x
         
-        !write (2,1111) x(1,121)-x_init(1,121),x(2,121)-x_init(2,121),time_calculated
-        !write (3,1112) C(1,2,61),C(1,1,61),C(2,2,61),time_calculated
+        write (2,1111) x(1, 431 )-x_init(1, 431 ),x(2, 431 )-x_init(2, 431 ),time_calculated
+        write (3,1112) C(1,2, 431 ),C(1,1, 431 ),C(2,2, 431 ),time_calculated
        ! call  plot(x,N)
     enddo
     
@@ -184,7 +190,7 @@
     
     1100 format (7f10.6,1i4)
     1113 format ("Density "1f10.6,/,"Time "1f10.6,/,"Poisson's ratio " 1f10.6,/,"Shear modulus " 1f10.6,/,"Side of a square " 1f10.6,/,"For finite difference " 1f10.6,/,"CFL " 1f10.6,/,"Particle count " 1i4)
-    1110 format (1i12,1f25.0,1f18.0)
+    1110 format (1i12,1f25.0,1f20.0)
     1111 format (3f10.6)
     1112 format (4f10.6)
     
