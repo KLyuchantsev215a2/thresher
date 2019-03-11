@@ -15,7 +15,7 @@
         
         call gp%animation_start(1)
         
-        do i=1, frame, 10
+        do i=1, frame, 100
             xg=x(1,1:N,i)
             yg=x(2,1:N,i)
             ! Annotation: set title, xlabel, ylabel

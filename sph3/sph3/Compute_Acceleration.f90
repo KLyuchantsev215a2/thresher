@@ -20,9 +20,9 @@ subroutine Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabl
     real*8 :: acc(2,N)
 
    ! call compute_W_cor(x,x,h,N,vol,W)
-    call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,Wper3,Wper4,nabla_W,dh)
+    !call Compute_nabla_W(x,h,vol,N,W,Wper1,Wper2,Wper3,Wper4,nabla_W,dh)
     call Compute_F(vol,x,x_old,nabla_W_0,N,F)
-    call Compute_Stress(F,C,mu,k,N)
+    call Compute_Stress_PK1(F,C,mu,k,N)
 
     acc=0
 
@@ -30,7 +30,7 @@ subroutine Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x,x_old,nabla_W_0,nabl
         do j=1,N
             do beta=1,2
                 do alpha=1,2
-                    acc(alpha,i)=acc(alpha,i)-(vol(j))*C(alpha,beta,j)*nabla_W(beta,j,i)
+                    acc(alpha,i)=acc(alpha,i)-(vol(j))*C(alpha,beta,j)*nabla_W_0(beta,j,i)
                 enddo
             enddo
         enddo

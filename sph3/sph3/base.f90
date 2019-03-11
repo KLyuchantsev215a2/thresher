@@ -26,6 +26,7 @@
     real*8, allocatable :: nabla_W_0(:,:,:)
     
     real*8, allocatable :: C(:,:,:)
+    !real*8, allocatable :: Cochi(:,:,:)
     real*8, allocatable :: F(:,:,:)
     real*8, allocatable :: vol(:)
     
@@ -107,6 +108,7 @@
     
     allocate(F(2,2,N))
     allocate(C(2,2,N))
+    !allocate(Cochi(2,2,N))
    
     vol=m/rho_0
         
@@ -166,9 +168,10 @@
         time_calculated=(real(step)*dt)
         
         xplot(1:2,1:N,step)=x
-        
-        write (2,1111) x(1, 431 )-x_init(1, 431 ),x(2, 431 )-x_init(2, 431 ),time_calculated
-        write (3,1112) C(1,2, 431 ),C(1,1, 431 ),C(2,2, 431 ),time_calculated
+      !  call Convert_PK1_to_Cochi(F,Cochi,C,N)
+    
+        write (2,1111) x(1,441)-x_init(1,441),x(2,441)-x_init(2,441),time_calculated
+        write (3,1112) Cochi(1,2,221),Cochi(1,1,221),Cochi(2,2,221),time_calculated
        ! call  plot(x,N)
     enddo
     
