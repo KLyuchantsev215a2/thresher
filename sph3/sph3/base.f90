@@ -26,7 +26,7 @@
     real*8, allocatable :: nabla_W_0(:,:,:)
     
     real*8, allocatable :: C(:,:,:)
-    !real*8, allocatable :: Cochi(:,:,:)
+   ! real*8, allocatable :: Cochi(:,:,:)
     real*8, allocatable :: F(:,:,:)
     real*8, allocatable :: vol(:)
     
@@ -120,8 +120,8 @@
         read (1, 1110) a,v(1,i),v(2,i)
     enddo
    
-    !do i=1,N!new condition
-    !    v(1,i)=0
+   ! do i=1,N!new condition
+  !      v(1,i)=0
    !     v(2,i)=0
    ! enddo
     
@@ -154,24 +154,24 @@
         v=1.0/3.0*v_0_0+2.0/3.0*v_n_3_2
         
       !  i=1
-      !   do while(i<=sqn*sqn-sqn+1)  !new condition
-      !      x(1,i)=x_init(1,i)
-     !       i=i+sqn
+     !!    do while(i<=sqn*sqn-sqn+1)  !new condition
+       !     x(1,i)=x_init(1,i)
+     !!       i=i+sqn
       !   end do
         
       !   i=sqn
-       ! do while(i<=N)         !new condition
-        !    x(1,i)=x_init(1,i)+x_init(1,i)*(real(step)*dt)*(real(step)*dt)
+      !  do while(i<=N)         !new condition
+      !      x(1,i)=x_init(1,i)+x_init(1,i)*(real(step)*dt)*(real(step)*dt)
        !     i=i+sqn
        ! end do
         
         time_calculated=(real(step)*dt)
         
         xplot(1:2,1:N,step)=x
-      !  call Convert_PK1_to_Cochi(F,Cochi,C,N)
+     !  call Convert_PK1_to_Cochi(F,Cochi,C,N)
     
         write (2,1111) x(1,441)-x_init(1,441),x(2,441)-x_init(2,441),time_calculated
-        write (3,1112) Cochi(1,2,221),Cochi(1,1,221),Cochi(2,2,221),time_calculated
+        write (3,1112) C(1,2,221),C(1,1,221),C(2,2,221),time_calculated
        ! call  plot(x,N)
     enddo
     

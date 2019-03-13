@@ -66,11 +66,12 @@
             Fp_inv(1,2)=-Fp(1,2)/detFp
             Fp_inv(2,1)=-Fp(2,1)/detFp
             Fp_inv(2,2)=Fp(1,1)/detFp
+            Fp_inv(3,3)=Fp(3,3)/detFp
         
         do alpha=1,2
             do beta=1,2
                 Kirc(alpha,beta,i)=0
-                do gamma=1,2
+                do gamma=1,3
                     Kirc(alpha,beta,i)=Kirc(alpha,beta,i)+Fp_inv(alpha,gamma)*C(gamma,beta,i)
                 enddo
             enddo
