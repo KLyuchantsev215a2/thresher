@@ -26,6 +26,7 @@
     real*8, allocatable :: nabla_W_0(:,:,:)
     
     real*8, allocatable :: C(:,:,:)
+     real*8, allocatable :: PK1(:,:,:)
    ! real*8, allocatable :: Cochi(:,:,:)
     real*8, allocatable :: F(:,:,:)
     real*8, allocatable :: vol(:)
@@ -108,6 +109,7 @@
     
     allocate(F(2,2,N))
     allocate(C(2,2,N))
+    allocate(PK1(2,2,N))
     !allocate(Cochi(2,2,N))
    
     vol=m/rho_0
@@ -139,15 +141,15 @@
     do step=1,int(T/dt)
         x_0=x
         v_0_0=v
-        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_0,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
+        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,PK1,x_0,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
         x_n_1=x_0+dt*v_0_0
         v_n_1=v_0_0+dt*acc
-        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
-        x_n_2=x_n_1+dt*v_n_1
+        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,PK1,x_n_1,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
+        x_n_2=x_n_1+dt*v_n_1     
         v_n_2=v_n_1+dt*acc
         x_n_1_2=3.0/4.0*x_0+1.0/4.0*x_n_2
         v_n_1_2=3.0/4.0*v_0_0+1.0/4.0*v_n_2
-        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,x_n_1_2,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
+        call Compute_Acceleration(N,h,dh,rho_0,mu,k,vol,F,C,PK1,x_n_1_2,x_init,nabla_W_0,nabla_W,W,Wper1,Wper2,Wper3,Wper4,acc)
         x_n_3_2=x_n_1_2+dt*v_n_1_2
         v_n_3_2=v_n_1_2+dt*acc
         x=1.0/3.0*x_0+2.0/3.0*x_n_3_2

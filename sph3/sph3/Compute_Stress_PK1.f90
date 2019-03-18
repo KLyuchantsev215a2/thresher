@@ -1,10 +1,11 @@
-﻿subroutine Compute_Stress_PK1(F,Kirc,mu,k,N)
+﻿subroutine Compute_Stress_PK1(F,C,PK1,mu,k,N)
     
     integer:: N
     real*8 :: F(2,2,N)
-    real*8 :: Kirc(2,2,N)
-    real*8 :: C(3,3,N)
-    real*8 :: Kirc_trans_tmp(2,2)
+    real*8 ::PK1(2,2,N)
+    real*8 :: C3x3(3,3,N)
+    real*8 ::C(2,2,N)
+    real*8 ::PK1_trans_tmp(2,2)
     real*8 :: mu
     real*8 :: k
 
@@ -16,8 +17,9 @@
     real*8 ::B_iso(3,3)
     real*8 ::dev_B_iso(3,3)
     
-    Kirc=0
-    C=0
+    PK1=0
+    C3x3=0
+    
     do i=1,N
 
         B=0
@@ -56,35 +58,35 @@
         dev_B_iso(3,3)=dev_B_iso(3,3)-(1.0/3.0)*(B_iso(1,1)+B_iso(2,2)+B_iso(3,3))
 
         
-        C(1:3,1:3,i)=mu*dev_B_iso(1:3,1:3)
+       C3x3(1:3,1:3,i)=mu*dev_B_iso(1:3,1:3)/detFp
 
-        C(1,1,i)=C(1,1,i)+k/10.0*(detFp**5-detFp**(-5))
-        C(2,2,i)=C(2,2,i)+k/10.0*(detFp**5-detFp**(-5))
-        C(3,3,i)=C(3,3,i)+k/10.0*(detFp**5-detFp**(-5))
+        C3x3(1,1,i)=C3x3(1,1,i)+k/10.0*(detFp**5-detFp**(-5))/detFp
+        C3x3(2,2,i)=C3x3(2,2,i)+k/10.0*(detFp**5-detFp**(-5))/detFp
+        C3x3(3,3,i)=C3x3(3,3,i)+k/10.0*(detFp**5-detFp**(-5))/detFp  ! Cauchy stress computed!
         
             Fp_inv(1,1)=Fp(2,2)/detFp
             Fp_inv(1,2)=-Fp(1,2)/detFp
             Fp_inv(2,1)=-Fp(2,1)/detFp
             Fp_inv(2,2)=Fp(1,1)/detFp
-            Fp_inv(3,3)=Fp(3,3)/detFp
+            Fp_inv(3,3)=1  ! inverse of F ready!
         
         do alpha=1,2
             do beta=1,2
-                Kirc(alpha,beta,i)=0
+               PK1(alpha,beta,i)=0
                 do gamma=1,3
-                    Kirc(alpha,beta,i)=Kirc(alpha,beta,i)+Fp_inv(alpha,gamma)*C(gamma,beta,i)
+                   PK1(alpha,beta,i)=PK1(alpha,beta,i)+Fp_inv(alpha,gamma)*C3x3(gamma,beta,i)
                 enddo
             enddo
         enddo
         
-         Kirc_trans_tmp(1:2,1:2)=Kirc(1:2,1:2,i)
+        PK1_trans_tmp(1:2,1:2)=PK1(1:2,1:2,i)
          
          do alpha=1,2
           do beta=1,2
-                Kirc(alpha,beta,i)=Kirc_trans_tmp(beta,alpha)
+               PK1(alpha,beta,i)=PK1_trans_tmp(beta,alpha)
             enddo
         enddo
-         
+        C(1:2,1:2,i)=C3x3(1:2,1:2,i)
         
 
     enddo
