@@ -84,7 +84,7 @@
     E=9.0*k*mu/(3.0*k+mu)
 
     cs_0=sqrt((E+4.0/3.0*mu)/rho_0)
-    h=1.4*sqrt(m/rho_0)
+    h=1*sqrt(m/rho_0)
     dt=CFL*h/(cs_0)
     
     allocate(vol(N))

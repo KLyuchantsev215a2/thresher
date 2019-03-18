@@ -35,7 +35,7 @@
         do alpha=1,2
             do beta=1,2
                 Cochi(alpha,beta,i)=0
-                do gamma=1,2
+                do gamma=1,3
                     Cochi(alpha,beta,i)=Cochi(alpha,beta,i)+Fp(alpha,gamma)*PK1(gamma,beta,i)
                 enddo
             enddo
